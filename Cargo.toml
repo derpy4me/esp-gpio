@@ -1,0 +1,28 @@
+[package]
+name = "esp-gpio"
+version = "0.1.0"
+authors = ["Tom Scott <derpy4me@gmail.com>"]
+edition = "2018"
+resolver = "2"
+
+[profile.release]
+opt-level = "s"
+
+[profile.dev]
+debug = true # Symbols are nice and they don't increase the size on Flash
+opt-level = "z"
+
+[features]
+pio = ["esp-idf-sys/pio"]
+
+[dependencies]
+esp-idf-sys = { version = "0.31.5", features = ["binstart"] }
+embedded-hal = "0.2"
+esp-idf-hal = "0.37.3"
+
+
+[build-dependencies]
+panic-halt = "0.2"
+embedded-hal = "0.2"
+embuild = "0.29"
+anyhow = "1"
