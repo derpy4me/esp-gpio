@@ -20,7 +20,7 @@ struct EspPins {
     top_left: Gpio26<Output>,
     top_right: Gpio1<Output>,
     led_pin2: Gpio2<Output>,
-    button_input1: Gpio15<Input>,
+    // button_input1: Gpio15<Input>,
 }
 
 impl EspPins {
@@ -36,7 +36,7 @@ impl EspPins {
             top_right: pins.gpio1.into_output().unwrap(),
             top_center: pins.gpio3.into_output().unwrap(),
             led_pin2: pins.gpio2.into_output().unwrap(),
-            button_input1: pins.gpio15.into_input().unwrap(),
+            // button_input1: pins.gpio15.into_input().unwrap(),
         }
     }
 
@@ -127,16 +127,13 @@ impl EspPins {
         self.bottom_right.set_high().unwrap();
         self.center.set_high().unwrap();
     }
-
-    fn button1_pressed(&self) -> bool {
-        self.button_input1.is_low().unwrap()
-    }
 }
 fn main() {
     println!("Hello World");
     let mut count: u8 = 0;
     println!("{}", count);
     let mut esp_pins = EspPins::new();
+    // println!("{}", esp_pins.button_input1.is_low().unwrap());
 
     // loop {
     //     println!("{:?}", pin22.is_high());
@@ -152,25 +149,26 @@ fn main() {
     // }
 
     loop {
-        if esp_pins.button1_pressed() {
-            count += 1;
-            esp_pins.clear_display();
-            esp_pins.led_pin2.set_high().unwrap();
-        } else {
-            match count {
-                0 => esp_pins.display_zero(),
-                1 => esp_pins.display_one(),
-                2 => esp_pins.display_two(),
-                3 => esp_pins.display_three(),
-                4 => esp_pins.display_four(),
-                5 => esp_pins.display_five(),
-                6 => esp_pins.display_six(),
-                7 => esp_pins.display_seven(),
-                8 => esp_pins.display_eight(),
-                9 => esp_pins.display_nine(),
-                _ => count = 0,
+        sleep(Duration::from_millis(500));
+        count += 1;
+        esp_pins.clear_display();
+        esp_pins.led_pin2.set_high().unwrap();
+        match count {
+            1 => esp_pins.display_one(),
+            2 => esp_pins.display_two(),
+            3 => esp_pins.display_three(),
+            4 => esp_pins.display_four(),
+            5 => esp_pins.display_five(),
+            6 => esp_pins.display_six(),
+            7 => esp_pins.display_seven(),
+            8 => esp_pins.display_eight(),
+            9 => esp_pins.display_nine(),
+            _ => {
+                count = 0;
+                esp_pins.display_zero();
             }
         }
+        sleep(Duration::from_millis(500));
         esp_pins.led_pin2.set_low().unwrap();
     }
 }
