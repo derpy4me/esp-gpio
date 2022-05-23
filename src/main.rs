@@ -146,13 +146,30 @@ fn main() {
     //     std::thread::sleep(std::time::Duration::from_secs(1));
     // }
 
+    let mut current_state = false;
+    let mut last_state = false;
+    let mut pressed_time = Instant::now();
+    let mut released_time = Instant::now();
+
     loop {
-        if esp_pins.button_input1.is_low().unwrap() {
-            esp_pins.clear_display();
-            esp_pins.led_pin2.set_high().unwrap();
-            sleep(Duration::from_millis(500));
-            count += 1;
+        current_state = esp_pins.button_input1.is_low().unwrap();
+
+        if current_state && !last_state {
+            pressed_time = Instant::now();
+        } else if !current_state && last_state {
+            released_time = Instant::now();
+
+            let pressed_duration =
+                pressed_time.elapsed().as_millis() - released_time.elapsed().as_millis();
+
+            if pressed_duration < 500 {
+                esp_pins.clear_display();
+                esp_pins.led_pin2.set_high().unwrap();
+                sleep(Duration::from_millis(500));
+                count += 1;
+            }
         }
+
         match count {
             1 => esp_pins.display_one(),
             2 => esp_pins.display_two(),
@@ -168,6 +185,8 @@ fn main() {
                 esp_pins.display_zero();
             }
         }
+
+        last_state = current_state;
 
         esp_pins.led_pin2.set_low().unwrap();
     }
