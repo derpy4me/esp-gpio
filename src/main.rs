@@ -20,7 +20,7 @@ struct EspPins {
     top_left: Gpio26<Output>,
     top_right: Gpio1<Output>,
     led_pin2: Gpio2<Output>,
-    // button_input1: Gpio15<Input>,
+    button_input1: Gpio15<Input>,
 }
 
 impl EspPins {
@@ -36,7 +36,7 @@ impl EspPins {
             top_right: pins.gpio1.into_output().unwrap(),
             top_center: pins.gpio3.into_output().unwrap(),
             led_pin2: pins.gpio2.into_output().unwrap(),
-            // button_input1: pins.gpio15.into_input().unwrap(),
+            button_input1: pins.gpio15.into_input().unwrap(),
         }
     }
 
@@ -133,8 +133,6 @@ fn main() {
     let mut count: u8 = 0;
     println!("{}", count);
     let mut esp_pins = EspPins::new();
-    // println!("{}", esp_pins.button_input1.is_low().unwrap());
-
     // loop {
     //     println!("{:?}", pin22.is_high());
     //     pin2.set_high().unwrap();
@@ -149,10 +147,12 @@ fn main() {
     // }
 
     loop {
-        sleep(Duration::from_millis(500));
-        count += 1;
-        esp_pins.clear_display();
-        esp_pins.led_pin2.set_high().unwrap();
+        if esp_pins.button_input1.is_low().unwrap() {
+            esp_pins.clear_display();
+            esp_pins.led_pin2.set_high().unwrap();
+            sleep(Duration::from_millis(500));
+            count += 1;
+        }
         match count {
             1 => esp_pins.display_one(),
             2 => esp_pins.display_two(),
@@ -168,7 +168,7 @@ fn main() {
                 esp_pins.display_zero();
             }
         }
-        sleep(Duration::from_millis(500));
+
         esp_pins.led_pin2.set_low().unwrap();
     }
 }
